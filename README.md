@@ -1,3 +1,13 @@
+---
+title: Airline Disruption Env
+emoji: ""
+colorFrom: green
+colorTo: indigo
+sdk: docker
+pinned: false
+license: apache-2.0
+---
+
 # Airline Disruption Recovery Environment
 
 A deterministic OpenEnv-style simulator where an AI agent handles operational disruption in a hub airport. The environment focuses on practical airline recovery decisions such as gate conflicts, crew recovery, maintenance recovery, weather impact handling, passenger communication, and VIP-sensitive prioritization.
