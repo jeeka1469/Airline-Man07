@@ -1,6 +1,6 @@
 ---
 title: Airline Disruption Env
-emoji: "airplane"
+emoji: "✈️"
 colorFrom: green
 colorTo: indigo
 sdk: docker
