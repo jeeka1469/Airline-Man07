@@ -15,6 +15,15 @@ class ResetRequest(BaseModel):
     task_name: str = "easy"
 
 
+@app.get("/")
+def root():
+    return {
+        "name": "airline-disruption-env",
+        "status": "ok",
+        "endpoints": ["/reset", "/step", "/state", "/health", "/metadata", "/schema", "/mcp"],
+    }
+
+
 @app.post("/reset", response_model=Observation)
 def reset_environment(payload: ResetRequest):
     try:
