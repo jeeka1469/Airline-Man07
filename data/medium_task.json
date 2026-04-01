@@ -1,0 +1,36 @@
+{
+  "airport": "MRD",
+  "weather": "crosswind",
+  "flights": [
+    {
+      "flight_id": "MR228",
+      "destination": "MIA",
+      "delay_minutes": 40,
+      "gate": "C5",
+      "crew_available": false,
+      "crew_legal": false,
+      "maintenance_required": false,
+      "passenger_count": 167,
+      "vip_onboard": false,
+      "connection_risk": true,
+      "cancelled": false
+    },
+    {
+      "flight_id": "MR713",
+      "destination": "ORD",
+      "delay_minutes": 10,
+      "gate": "C2",
+      "crew_available": true,
+      "crew_legal": true,
+      "maintenance_required": false,
+      "passenger_count": 111,
+      "vip_onboard": false,
+      "connection_risk": false,
+      "cancelled": false
+    }
+  ],
+  "available_gates": ["C9", "D1"],
+  "available_backup_crew": 2,
+  "expected_solution": ["assign_backup_crew", "hold_connection", "notify_passengers"],
+  "max_steps": 7
+}

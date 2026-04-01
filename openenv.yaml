@@ -1,0 +1,12 @@
+name: airline-disruption-env
+version: 1.0.0
+description: Airline disruption recovery environment for evaluating AI agents.
+entrypoint: app.py
+models:
+  action: env.models.Action
+  observation: env.models.Observation
+  reward: env.models.Reward
+endpoints:
+  reset: /reset
+  step: /step
+  state: /state

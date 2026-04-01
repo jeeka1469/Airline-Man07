@@ -1,0 +1,36 @@
+{
+  "airport": "NVA",
+  "weather": "clear",
+  "flights": [
+    {
+      "flight_id": "NV102",
+      "destination": "BOS",
+      "delay_minutes": 25,
+      "gate": "A3",
+      "crew_available": true,
+      "crew_legal": true,
+      "maintenance_required": false,
+      "passenger_count": 142,
+      "vip_onboard": false,
+      "connection_risk": true,
+      "cancelled": false
+    },
+    {
+      "flight_id": "NV431",
+      "destination": "IAD",
+      "delay_minutes": 0,
+      "gate": "A2",
+      "crew_available": true,
+      "crew_legal": true,
+      "maintenance_required": false,
+      "passenger_count": 96,
+      "vip_onboard": false,
+      "connection_risk": false,
+      "cancelled": false
+    }
+  ],
+  "available_gates": ["A7", "B1"],
+  "available_backup_crew": 1,
+  "expected_solution": ["reassign_gate", "notify_passengers"],
+  "max_steps": 6
+}

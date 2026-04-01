@@ -1,0 +1,49 @@
+{
+  "airport": "QTR",
+  "weather": "storm",
+  "flights": [
+    {
+      "flight_id": "QT900",
+      "destination": "LAX",
+      "delay_minutes": 75,
+      "gate": "E4",
+      "crew_available": false,
+      "crew_legal": false,
+      "maintenance_required": true,
+      "passenger_count": 188,
+      "vip_onboard": true,
+      "connection_risk": true,
+      "cancelled": false
+    },
+    {
+      "flight_id": "QT144",
+      "destination": "SEA",
+      "delay_minutes": 30,
+      "gate": "E3",
+      "crew_available": true,
+      "crew_legal": true,
+      "maintenance_required": false,
+      "passenger_count": 103,
+      "vip_onboard": false,
+      "connection_risk": true,
+      "cancelled": false
+    },
+    {
+      "flight_id": "QT501",
+      "destination": "DEN",
+      "delay_minutes": 15,
+      "gate": "E6",
+      "crew_available": true,
+      "crew_legal": true,
+      "maintenance_required": false,
+      "passenger_count": 86,
+      "vip_onboard": false,
+      "connection_risk": false,
+      "cancelled": false
+    }
+  ],
+  "available_gates": ["F2", "F3"],
+  "available_backup_crew": 1,
+  "expected_solution": ["swap_aircraft", "assign_backup_crew", "reassign_gate", "hold_connection", "notify_passengers"],
+  "max_steps": 9
+}
