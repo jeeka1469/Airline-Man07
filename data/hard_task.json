@@ -5,6 +5,9 @@
     {
       "flight_id": "QT900",
       "destination": "LAX",
+      "carrier_name": "Air India",
+      "logo_domain": "airindia.com",
+      "aircraft_type": "B777-300ER",
       "delay_minutes": 75,
       "gate": "E4",
       "crew_available": false,
@@ -18,6 +21,9 @@
     {
       "flight_id": "QT144",
       "destination": "SEA",
+      "carrier_name": "IndiGo",
+      "logo_domain": "goindigo.in",
+      "aircraft_type": "A321neo",
       "delay_minutes": 30,
       "gate": "E3",
       "crew_available": true,
@@ -31,6 +37,9 @@
     {
       "flight_id": "QT501",
       "destination": "DEN",
+      "carrier_name": "Vistara",
+      "logo_domain": "airvistara.com",
+      "aircraft_type": "A320neo",
       "delay_minutes": 15,
       "gate": "E6",
       "crew_available": true,
@@ -44,6 +53,7 @@
   ],
   "available_gates": ["F2", "F3"],
   "available_backup_crew": 1,
+  "shift_note": "Storm front, maintenance slip, exhausted crew, VIP pressure, and a brittle gate plan. Solve it without making the room noisier.",
   "expected_solution": ["swap_aircraft", "assign_backup_crew", "reassign_gate", "hold_connection", "notify_passengers"],
   "max_steps": 9
 }

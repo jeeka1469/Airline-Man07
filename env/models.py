@@ -8,6 +8,9 @@ from pydantic import BaseModel, Field
 class Flight(BaseModel):
     flight_id: str
     destination: str
+    carrier_name: str = "Ops"
+    logo_domain: str | None = None
+    aircraft_type: str | None = None
     delay_minutes: int = 0
     gate: str
     crew_available: bool

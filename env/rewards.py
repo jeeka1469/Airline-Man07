@@ -38,6 +38,14 @@ def calculate_reward(action, state, expected_solution):
         score += REWARD_MAP["wasted_step"]
         reasons.append("loop_penalty")
 
+    if action_type == "notify_passengers" and len(completed_actions) == 0:
+        score += 0.01
+        reasons.append("early_transparency")
+
+    if action_type == "delay_flight" and "hold_connection" in completed_actions:
+        score += REWARD_MAP["wasted_step"]
+        reasons.append("double delay penalty")
+
     expected_index = state.get("matched_expected", 0)
     if expected_index < len(expected_solution):
         if action_type == expected_solution[expected_index]:
@@ -45,7 +53,7 @@ def calculate_reward(action, state, expected_solution):
             reasons.append("next_expected")
         elif action_type in expected_solution:
             score += 0.02
-            reasons.append("useful_but_out_of_order")
+            reasons.append("useful but out of order")
 
     score = max(-1.0, min(1.0, round(score, 4)))
     return score, ",".join(reasons)

@@ -1,6 +1,5 @@
 ---
 title: Airline Disruption Env
-emoji: "✈️"
 colorFrom: green
 colorTo: indigo
 sdk: docker
@@ -12,9 +11,39 @@ license: apache-2.0
 
 A deterministic OpenEnv-style simulator where an AI agent handles operational disruption in a hub airport. The environment focuses on practical airline recovery decisions such as gate conflicts, crew recovery, maintenance recovery, weather impact handling, passenger communication, and VIP-sensitive prioritization.
 
+## Problem Statement
+
+Airline disruption recovery is the messy part of operations where a small delay can become a gate conflict, a missed connection, a crew legality issue, and a passenger-service problem all at once. This benchmark asks an agent to make sensible recovery moves under pressure, using the same kind of partial, imperfect information a dispatch team sees in the real world.
+
+## What Makes This Environment Distinct
+
+- It models a dispatch-room style "smallest viable fix first" workflow, exposed through shift notes and action logs.
+- Rewards are not just action lookup values; they include sequencing effects, anti-loop behavior, communication timing, and operational trade-offs.
+- The hard scenario intentionally combines conflicting priorities (maintenance, crew legality, gate pressure, connection risk, and VIP handling) so agents cannot rely on one-rule policies.
+- Task data uses custom airports and flight IDs designed specifically for this benchmark.
+
+This is intentionally written as practical operations code, not a cleaned-up toy benchmark.
+
 ## Why This Matters
 
 Disruption recovery is one of the highest-cost airline operations problems. Delays cascade through gates, aircraft, crew legality windows, and passenger connection chains. A lightweight benchmark helps compare agent quality on real operations trade-offs, not just abstract planning.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  U[Judge / Human Reviewer] --> UI[FastAPI + Demo Page]
+  UI --> E[AirlineDisruptionEnv]
+  E --> T[Task JSON]
+  E --> R[Reward Shaping]
+  E --> G[Episode Graders]
+  UI --> W[Open-Meteo Weather]
+  UI --> C[QuickChart]
+  UI --> L[Clearbit Logos]
+  E --> O[OpenEnv Validator]
+```
+
+The backend is the source of truth. The dashboard is there to make the state legible at a glance for humans.
 
 ## Project Structure
 
@@ -84,8 +113,20 @@ Rewards are shaped per step (not binary):
 - Penalty for repeated actions and loop behavior
 - Penalty for illegal crew assignment attempt
 - Penalty for cancellation-heavy behavior
+- Small transparency bonus for early passenger notice
+- Additional penalty for unnecessary second-order delays
 
 The model gives agents incremental guidance while still requiring end-to-end strategy quality for top episode grades.
+
+## Why the Graders Are Deterministic
+
+The graders reward concrete action coverage, order, and anti-loop behavior. They do not sample randomness, call external services, or depend on hidden mutable state. That means two agents with different decision sequences can earn different scores, but the same sequence always produces the same result.
+
+## Ops Realism Notes
+
+- `info` includes an `ops_pressure` indicator to emulate controller workload.
+- `info` also includes an `action_log_tail` handoff snippet so multi-agent chains can reason about recent operator decisions.
+- Passenger notices are deduplicated to avoid artificial score inflation from spammy notification loops.
 
 ## Tasks
 
@@ -105,6 +146,9 @@ The model gives agents incremental guidance while still requiring end-to-end str
 - Expected sequence: `swap_aircraft`, `assign_backup_crew`, `reassign_gate`, `hold_connection`, `notify_passengers`
 
 ## API
+
+The root URL (`/`) serves a lightweight control-room demo for human reviewers.
+Programmatic clients can still use all API routes directly, and `/api` returns a simple machine-readable service summary.
 
 Start server:
 
@@ -159,6 +203,21 @@ With deterministic policy matching each expected solution:
 
 Alternative action order or cancellation behavior will reduce scores.
 
+## Limitations
+
+- This is a recovery benchmark, not a full airline network optimizer.
+- It does not ingest live airline operational feeds.
+- The live weather, chart, and logo enrichments are for presentation only; the graded environment remains deterministic.
+- Some scenario fields are deliberately simplified so the benchmark stays lightweight and reproducible.
+
+## Future Work
+
+- Add more scenario families such as airport closures, inbound aircraft late-arrivals, and crew legality rollover.
+- Expand the frontend with small charts for delay trend, reward trend, and action history.
+- Add more realistic carrier metadata and richer route networks.
+- Add scenario history storage for replay and comparison across agents.
+- Add optional screenshot generation for human review packages.
+
 ## Docker
 
 Build:
@@ -180,6 +239,16 @@ docker run -p 7860:7860 airline-disruption-env
 3. Set optional secrets (`API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN`) if running external inference workflows.
 4. Space will expose the FastAPI app on port 7860.
 
+### Optional Visual Enrichment
+
+The demo page can enrich presentation with:
+
+- Open-Meteo for live weather context with fallback to the task weather
+- Clearbit for airline logos using carrier domains
+- QuickChart for quick delay charts and disruption summaries
+
+These are cosmetic and do not affect scoring.
+
 ## Validation
 
 Local checks:
@@ -197,3 +266,9 @@ Manual endpoint checks:
 5. Confirm grader outputs differ across action sequences
 
 OpenEnv checklist items such as runtime limits, memory profile, and endpoint HTTP health can be validated in your CI/deployment pipeline.
+
+## Human Review Notes
+
+- The same environment can look clean in a browser and still stay deterministic under the hood.
+- The scenario data, shift notes, and action logs were written specifically for this benchmark.
+- Human reviewers should be able to understand the state, the trade-offs, and the recovery intent without reading source code first.

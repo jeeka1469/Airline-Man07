@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Airline Disruption Control Room</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fff8fb;
+      --panel: #ffffff;
+      --ink: #1f1726;
+      --muted: #6d6378;
+      --line: #f0d7e7;
+      --pink: #0032f8;
+      --peach: #ff8956;
+      --mint: #14c8a4;
+      --warn: #ffb020;
+      --danger: #ff4d5f;
+      --shadow: 0 20px 45px rgba(255, 79, 163, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 20%, #ffdbe9 0, transparent 38%),
+        radial-gradient(circle at 10% 15%, #ffe7d9 0, transparent 30%),
+        linear-gradient(145deg, #fff9fd, #fff6f3 48%, #fefbff);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1120px, 92vw);
+      margin: 24px auto 40px;
+    }
+
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: liftIn 450ms ease;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255, 79, 163, 0.16), rgba(255, 137, 86, 0.14));
+      pointer-events: none;
+    }
+
+    .headline {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.3rem, 2.8vw, 2.05rem);
+      letter-spacing: -0.03em;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      font-family: "Space Mono", monospace;
+      font-size: 0.78rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: #fff;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .toolbar {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    select, button {
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px 12px;
+      color: var(--ink);
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(31, 23, 38, 0.1);
+    }
+
+    .btn-pink {
+      border: none;
+      background: linear-gradient(135deg, var(--pink), #ff6884);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .grid {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      animation: liftIn 520ms ease;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .weather-strip {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff, #fff7fb);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .weather-strip strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .weather-detail {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .chart-box img {
+      width: 100%;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .chip .k {
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .chip .v {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .a-btn { font-size: 0.86rem; }
+
+    .flight-list {
+      display: grid;
+      gap: 8px;
+      max-height: 420px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .flight {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 11px;
+      display: grid;
+      gap: 4px;
+      transform-origin: center;
+      animation: pulseIn 280ms ease;
+    }
+
+    .flight-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .airline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .airline img {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #f7eff5;
+      border: 1px solid var(--line);
+    }
+
+    .airline .name {
+      font-weight: 800;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .airline .subline {
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.87rem;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.75rem;
+      border: 1px solid;
+      font-family: "Space Mono", monospace;
+    }
+
+    .ok { color: #0d8a70; border-color: #89e6d3; background: #ecfffa; }
+    .warn { color: #855700; border-color: #ffd98b; background: #fff8e8; }
+    .bad { color: #a51943; border-color: #ff9db5; background: #fff0f4; }
+
+    .console {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 10px;
+      height: 150px;
+      overflow: auto;
+      font-family: "Space Mono", monospace;
+      font-size: 0.74rem;
+      line-height: 1.45;
+      color: #523f61;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @keyframes liftIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseIn {
+      from { opacity: 0; transform: scale(0.985); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="headline">
+        <div>
+          <h1>Airline Disruption Control Room</h1>
+          <p class="sub">A fast visual sandbox for gate conflicts, crew recovery, maintenance pressure, and connection protection.</p>
+        </div>
+          <div class="hero-meta">
+            <span class="badge" id="weatherBadge">weather: loading...</span>
+            <span class="badge" id="statusBadge">loading...</span>
+          </div>
+      </div>
+      <div class="toolbar">
+        <select id="taskSelect">
+          <option value="easy">Easy Task</option>
+          <option value="medium">Medium Task</option>
+          <option value="hard">Hard Task</option>
+        </select>
+        <button class="btn-pink" id="resetBtn">Reset Task</button>
+        <select id="flightSelect"></select>
+        <select id="gateSelect"></select>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Flight Board</h2>
+        <div class="flight-list" id="flightList"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Decision Deck</h2>
+        <div class="weather-strip" id="weatherStrip"></div>
+        <div class="stats" id="stats"></div>
+        <div class="chart-box">
+          <img id="disruptionChart" alt="Disruption chart" />
+        </div>
+        <div class="actions" id="actionButtons"></div>
+        <h2 style="margin-top:14px;">Ops Console</h2>
+        <div class="console" id="console"></div>
+        <p class="small">Tip: choose a flight and press actions in sequence. Repeated noisy actions will be penalized.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ACTIONS = [
+      'assign_backup_crew',
+      'reassign_gate',
+      'delay_flight',
+      'cancel_flight',
+      'reroute_passengers',
+      'hold_connection',
+      'swap_aircraft',
+      'notify_passengers',
+      'reschedule_maintenance',
+      'prioritize_departure'
+    ];
+
+    const dom = {
+      taskSelect: document.getElementById('taskSelect'),
+      resetBtn: document.getElementById('resetBtn'),
+      flightSelect: document.getElementById('flightSelect'),
+      gateSelect: document.getElementById('gateSelect'),
+      stats: document.getElementById('stats'),
+      weatherStrip: document.getElementById('weatherStrip'),
+      flightList: document.getElementById('flightList'),
+      console: document.getElementById('console'),
+      actionButtons: document.getElementById('actionButtons'),
+      statusBadge: document.getElementById('statusBadge'),
+      weatherBadge: document.getElementById('weatherBadge'),
+      disruptionChart: document.getElementById('disruptionChart')
+    };
+
+    let latest = null;
+    let lastReward = 0;
+
+    const AIRPORT_COORDS = {
+      NVA: { lat: 28.61, lon: 77.21, label: 'Delhi-sector control' },
+      MRD: { lat: 19.09, lon: 72.87, label: 'Mumbai-sector control' },
+      QTR: { lat: 12.97, lon: 77.59, label: 'Bengaluru-sector control' }
+    };
+
+    const WEATHER_CODES = {
+      0: 'clear', 1: 'mostly clear', 2: 'partly cloudy', 3: 'overcast',
+      45: 'fog', 48: 'rime fog', 51: 'drizzle', 53: 'drizzle', 55: 'drizzle',
+      61: 'rain', 63: 'rain', 65: 'heavy rain', 71: 'snow', 73: 'snow', 75: 'heavy snow',
+      80: 'rain showers', 81: 'rain showers', 82: 'heavy showers', 95: 'thunderstorm',
+      96: 'thunderstorm hail', 99: 'thunderstorm hail'
+    };
+
+    const WEATHER_EMOJI = {
+      clear: '☀️',
+      'mostly clear': '🌤️',
+      'partly cloudy': '⛅',
+      overcast: '☁️',
+      fog: '🌫️',
+      drizzle: '🌦️',
+      rain: '🌧️',
+      'heavy rain': '🌧️',
+      snow: '❄️',
+      'heavy snow': '❄️',
+      'rain showers': '🌦️',
+      thunderstorm: '⛈️',
+      'thunderstorm hail': '⛈️'
+    };
+
+    function say(line) {
+      const t = new Date().toLocaleTimeString();
+      dom.console.textContent = `[${t}] ${line}\n` + dom.console.textContent;
+    }
+
+    function weatherTone(weather) {
+      const w = (weather || '').toLowerCase();
+      if (w.includes('storm')) return 'bad';
+      if (w.includes('crosswind') || w.includes('rain')) return 'warn';
+      return 'ok';
+    }
+
+    function carrierLogo(flight) {
+      const domain = flight.logo_domain || '';
+      if (!domain) return '';
+      return `https://logo.clearbit.com/${domain}`;
+    }
+
+    function chartUrl(obs) {
+      const delays = obs.flights.map(f => f.delay_minutes);
+      const labels = obs.flights.map(f => f.flight_id);
+      const config = {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'delay min',
+            data: delays,
+            backgroundColor: ['#ff4fa3', '#ff8956', '#14c8a4', '#7b61ff']
+          }]
+        },
+        options: {
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      };
+      return `https://quickchart.io/chart?width=640&height=220&backgroundColor=white&c=${encodeURIComponent(JSON.stringify(config))}`;
+    }
+
+    async function enrichWeather(obs) {
+      const coords = AIRPORT_COORDS[obs.airport];
+      const fallback = obs.weather;
+      if (!coords) {
+        dom.weatherBadge.textContent = `${obs.airport}: ${fallback}`;
+        dom.weatherStrip.innerHTML = `<div><strong>${fallback}</strong><div class="weather-detail">Task-weather fallback</div></div><span class="tag ok">demo fallback</span>`;
+        return;
+      }
+
+      dom.weatherBadge.textContent = `${obs.airport}: loading live weather...`;
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current=temperature_2m,wind_speed_10m,precipitation,weather_code&temperature_unit=celsius&wind_speed_unit=kmh&timezone=auto`;
+        const response = await fetch(url);
+        const payload = await response.json();
+        const current = payload.current || {};
+        const label = WEATHER_CODES[current.weather_code] || fallback;
+        const emoji = WEATHER_EMOJI[label] || '🌡️';
+        dom.weatherBadge.textContent = `${emoji} ${label} · ${Math.round(current.temperature_2m ?? 0)}°C`;
+        dom.weatherStrip.innerHTML = `
+          <div>
+            <strong>${emoji} ${label}</strong>
+            <div class="weather-detail">${coords.label} · temp ${Math.round(current.temperature_2m ?? 0)}°C · wind ${Math.round(current.wind_speed_10m ?? 0)} km/h</div>
+          </div>
+          <span class="tag ${weatherTone(label)}">live Open-Meteo</span>
+        `;
+      } catch (error) {
+        dom.weatherBadge.textContent = `${obs.airport}: ${fallback}`;
+        dom.weatherStrip.innerHTML = `<div><strong>${fallback}</strong><div class="weather-detail">Fallback to task weather because live API failed.</div></div><span class="tag ok">fallback</span>`;
+      }
+    }
+
+    function renderChart(obs) {
+      dom.disruptionChart.src = chartUrl(obs);
+      dom.disruptionChart.alt = `Delay chart for ${obs.airport}`;
+    }
+
+    function renderStats(obs, info) {
+      const task = dom.taskSelect.value;
+      const pressure = info?.ops_pressure ?? '-';
+      const weatherClass = weatherTone(obs.weather);
+      dom.stats.innerHTML = `
+        <div class="chip"><div class="k">Current Task</div><div class="v">${task.toUpperCase()}</div></div>
+        <div class="chip"><div class="k">Airport</div><div class="v">${obs.airport}</div></div>
+        <div class="chip"><div class="k">Weather</div><div class="v"><span class="tag ${weatherClass}">${obs.weather}</span></div></div>
+        <div class="chip"><div class="k">Reward</div><div class="v">${Number(lastReward).toFixed(2)}</div></div>
+        <div class="chip"><div class="k">Backup Crew</div><div class="v">${obs.backup_crew_count}</div></div>
+        <div class="chip"><div class="k">Ops Pressure</div><div class="v">${pressure}</div></div>
+      `;
+    }
+
+    function renderFlights(obs) {
+      dom.flightList.innerHTML = obs.flights.map(f => {
+        const crew = f.crew_available && f.crew_legal ? 'ok' : 'bad';
+        const maint = f.maintenance_required ? 'warn' : 'ok';
+        const conn = f.connection_risk ? 'warn' : 'ok';
+        const vip = f.vip_onboard ? 'bad' : 'ok';
+        return `
+          <article class="flight">
+            <div class="flight-top">
+              <div class="airline">
+                ${f.logo_domain ? `<img src="${carrierLogo(f)}" alt="${f.carrier_name} logo" onerror="this.style.display='none'">` : ''}
+                <div>
+                  <div class="name">${f.carrier_name || 'Ops'} · ${f.flight_id} → ${f.destination}</div>
+                  <div class="subline">${f.aircraft_type || 'airframe unknown'}</div>
+                </div>
+              </div>
+              <span>Delay: ${f.delay_minutes}m</span>
+            </div>
+            <div class="row"><span>Gate ${f.gate}</span><span>Passengers ${f.passenger_count}</span></div>
+            <div class="row">
+              <span class="tag ${crew}">crew ${f.crew_available ? 'ready' : 'short'}/${f.crew_legal ? 'legal' : 'illegal'}</span>
+              <span class="tag ${maint}">maintenance ${f.maintenance_required ? 'due' : 'clear'}</span>
+              <span class="tag ${conn}">connections ${f.connection_risk ? 'at-risk' : 'stable'}</span>
+              <span class="tag ${vip}">${f.vip_onboard ? 'vip onboard' : 'standard'}</span>
+            </div>
+            ${f.cancelled ? '<div class="row"><span class="tag bad">cancelled</span></div>' : ''}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderSelectors(obs) {
+      dom.flightSelect.innerHTML = obs.flights
+        .map(f => `<option value="${f.flight_id}">${f.flight_id} (${f.destination})</option>`)
+        .join('');
+      dom.gateSelect.innerHTML = obs.available_gates
+        .map(g => `<option value="${g}">${g}</option>`)
+        .join('');
+    }
+
+    async function refreshState() {
+      const res = await fetch('/state');
+      latest = await res.json();
+      renderSelectors(latest);
+      renderStats(latest, null);
+      renderFlights(latest);
+      renderChart(latest);
+      enrichWeather(latest);
+      dom.statusBadge.textContent = `live / ${latest.airport}`;
+    }
+
+    async function resetTask() {
+      const task = dom.taskSelect.value;
+      const res = await fetch('/reset', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ task_name: task })
+      });
+      latest = await res.json();
+      lastReward = 0;
+      renderSelectors(latest);
+      renderStats(latest, null);
+      renderFlights(latest);
+      renderChart(latest);
+      enrichWeather(latest);
+      say(`Task reset to ${task}.`);
+      dom.statusBadge.textContent = `ready / ${latest.airport}`;
+    }
+
+    async function runAction(actionType) {
+      const payload = {
+        action_type: actionType,
+        flight_id: dom.flightSelect.value || null,
+        target_gate: actionType === 'reassign_gate' ? dom.gateSelect.value : null,
+        target_aircraft: null,
+        target_crew: null
+      };
+
+      const res = await fetch('/step', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      latest = data.observation;
+      lastReward = data.reward.score;
+      renderSelectors(latest);
+      renderStats(latest, data.info);
+      renderFlights(latest);
+      renderChart(latest);
+      enrichWeather(latest);
+
+      const grade = Number(data.info?.episode_grade ?? 0).toFixed(2);
+      say(`${actionType} -> reward ${lastReward.toFixed(2)} | grade ${grade} | done=${data.done}`);
+    }
+
+    function mountActions() {
+      dom.actionButtons.innerHTML = ACTIONS.map(a => `<button class="a-btn" data-action="${a}">${a}</button>`).join('');
+      dom.actionButtons.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => runAction(btn.dataset.action));
+      });
+    }
+
+    dom.resetBtn.addEventListener('click', resetTask);
+    dom.taskSelect.addEventListener('change', resetTask);
+
+    mountActions();
+    refreshState().then(() => say('Dashboard connected. Ready for disruption drills.'));
+  </script>
+</body>
+</html>

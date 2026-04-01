@@ -31,6 +31,8 @@ class AirlineDisruptionEnv:
         self.backup_crew_count: int = 0
         self.completed_actions: list[str] = []
         self.passenger_alerts: list[str] = []
+        self.action_log: list[dict] = []
+        self.shift_note: str = ""
         self.expected_solution: list[str] = []
         self.max_steps: int = 1
         self.step_count: int = 0
@@ -48,8 +50,10 @@ class AirlineDisruptionEnv:
         self.backup_crew_count = int(self.task["available_backup_crew"])
         self.expected_solution = list(self.task["expected_solution"])
         self.max_steps = int(self.task["max_steps"])
+        self.shift_note = str(self.task.get("shift_note", "Dispatch prefers smallest viable fix first."))
         self.completed_actions = []
         self.passenger_alerts = []
+        self.action_log = []
         self.step_count = 0
         self.done = False
         self.last_reward = Reward(score=0.0, reason="reset")
@@ -76,6 +80,29 @@ class AirlineDisruptionEnv:
             if flight.flight_id == flight_id:
                 return flight
         return None
+
+    def _ops_pressure(self) -> int:
+        pressure = 0
+        for flight in self.flights:
+            pressure += min(60, flight.delay_minutes)
+            pressure += 8 if flight.connection_risk else 0
+            pressure += 6 if flight.maintenance_required else 0
+            pressure += 10 if not flight.crew_available else 0
+            pressure += 4 if flight.vip_onboard else 0
+            pressure += 12 if flight.cancelled else 0
+        return pressure
+
+    def _log_action(self, action: Action, valid: bool, reason: str):
+        self.action_log.append(
+            {
+                "step": self.step_count + 1,
+                "action": action.action_type,
+                "flight_id": action.flight_id,
+                "valid": valid,
+                "reason": reason,
+                "ops_pressure": self._ops_pressure(),
+            }
+        )
 
     def apply_action(self, action: Action):
         target_flight = self._find_flight(action.flight_id)
@@ -115,9 +142,9 @@ class AirlineDisruptionEnv:
 
         elif action.action_type == "notify_passengers":
             if target_flight:
-                self.passenger_alerts.append(
-                    f"Advisory sent for {target_flight.flight_id} to {target_flight.destination}."
-                )
+                msg = f"Advisory sent for {target_flight.flight_id} to {target_flight.destination}."
+                if msg not in self.passenger_alerts:
+                    self.passenger_alerts.append(msg)
             else:
                 self.passenger_alerts.append("Terminal-wide disruption advisory sent.")
 
@@ -192,6 +219,8 @@ class AirlineDisruptionEnv:
         else:
             score, reward_reason = -0.1, f"invalid_action:{reason}"
 
+        self._log_action(action, valid, reason)
+
         self.step_count += 1
         self.done = self.check_done()
         self.last_reward = Reward(score=score, reason=reward_reason)
@@ -206,6 +235,9 @@ class AirlineDisruptionEnv:
                 "actions_taken": self.completed_actions,
                 "episode_grade": self._grade_episode(),
                 "validation": reason,
+                "ops_pressure": self._ops_pressure(),
+                "shift_note": self.shift_note,
+                "action_log_tail": self.action_log[-3:],
             },
         )
 

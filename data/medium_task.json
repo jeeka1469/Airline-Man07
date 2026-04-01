@@ -5,6 +5,9 @@
     {
       "flight_id": "MR228",
       "destination": "MIA",
+      "carrier_name": "Vistara",
+      "logo_domain": "airvistara.com",
+      "aircraft_type": "A321neo",
       "delay_minutes": 40,
       "gate": "C5",
       "crew_available": false,
@@ -18,6 +21,9 @@
     {
       "flight_id": "MR713",
       "destination": "ORD",
+      "carrier_name": "SpiceJet",
+      "logo_domain": "spicejet.com",
+      "aircraft_type": "B737-800",
       "delay_minutes": 10,
       "gate": "C2",
       "crew_available": true,
@@ -31,6 +37,7 @@
   ],
   "available_gates": ["C9", "D1"],
   "available_backup_crew": 2,
+  "shift_note": "Crew is thin, weather is ugly, and the next connection is the thing that keeps the terminal from melting down.",
   "expected_solution": ["assign_backup_crew", "hold_connection", "notify_passengers"],
   "max_steps": 7
 }

@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from env.environment import AirlineDisruptionEnv
@@ -9,6 +12,7 @@ from env.models import Action, Observation, StepResponse
 
 app = FastAPI(title="Airline Disruption Recovery Environment")
 env = AirlineDisruptionEnv(task_name="easy")
+FRONTEND_FILE = Path(__file__).resolve().parent / "frontend" / "index.html"
 
 
 class ResetRequest(BaseModel):
@@ -17,6 +21,17 @@ class ResetRequest(BaseModel):
 
 @app.get("/")
 def root():
+    if FRONTEND_FILE.exists():
+        return FileResponse(str(FRONTEND_FILE))
+    return {
+        "name": "airline-disruption-env",
+        "status": "ok",
+        "endpoints": ["/reset", "/step", "/state", "/health", "/metadata", "/schema", "/mcp"],
+    }
+
+
+@app.get("/api")
+def api_info():
     return {
         "name": "airline-disruption-env",
         "status": "ok",

@@ -5,6 +5,9 @@
     {
       "flight_id": "NV102",
       "destination": "BOS",
+      "carrier_name": "IndiGo",
+      "logo_domain": "goindigo.in",
+      "aircraft_type": "A320neo",
       "delay_minutes": 25,
       "gate": "A3",
       "crew_available": true,
@@ -18,6 +21,9 @@
     {
       "flight_id": "NV431",
       "destination": "IAD",
+      "carrier_name": "Air India",
+      "logo_domain": "airindia.com",
+      "aircraft_type": "B787-8",
       "delay_minutes": 0,
       "gate": "A2",
       "crew_available": true,
@@ -31,6 +37,7 @@
   ],
   "available_gates": ["A7", "B1"],
   "available_backup_crew": 1,
+  "shift_note": "Smallest viable fix: move the clogged BOS flight, then tell passengers before the queue gets angry.",
   "expected_solution": ["reassign_gate", "notify_passengers"],
   "max_steps": 6
 }
