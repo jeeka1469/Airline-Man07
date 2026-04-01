@@ -128,6 +128,21 @@ The graders reward concrete action coverage, order, and anti-loop behavior. They
 - `info` also includes an `action_log_tail` handoff snippet so multi-agent chains can reason about recent operator decisions.
 - Passenger notices are deduplicated to avoid artificial score inflation from spammy notification loops.
 
+## APIs Used In The Demo
+
+- Open-Meteo: live weather, wind, precipitation, and thunderstorm context with deterministic fallback to task weather.
+- Nominatim: human-readable airport area labels from the fixed airport coordinates used in each scenario.
+- Clearbit: airline logos in the flight cards.
+- QuickChart: small delay charts inside the decision deck.
+- CountAPI: lightweight scenario and action counters visible in the hero summary.
+- Google Fonts: Inter and Poppins for a cleaner, more premium UI.
+
+Optional extensions that can be added later if you want a stronger live-ops layer:
+
+- Aviationstack for real flight/aircraft/airport metadata when an API key is available.
+- Pantry for lightweight run history storage.
+- Nominatim map links or map embeds for stronger geospatial context.
+
 ## Tasks
 
 ### Easy

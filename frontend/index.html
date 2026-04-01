@@ -6,45 +6,103 @@
   <title>Airline Disruption Control Room</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #fff8fb;
-      --panel: #ffffff;
+      --bg: #fff6fb;
+      --panel: rgba(255, 255, 255, 0.82);
       --ink: #1f1726;
       --muted: #6d6378;
       --line: #f0d7e7;
-      --pink: #0032f8;
+      --pink: #ff3f93;
+      --pink-strong: #e91e77;
       --peach: #ff8956;
       --mint: #14c8a4;
       --warn: #ffb020;
       --danger: #ff4d5f;
-      --shadow: 0 20px 45px rgba(255, 79, 163, 0.12);
+      --shadow: 0 22px 50px rgba(255, 63, 147, 0.16);
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+      font-family: "Inter", "Trebuchet MS", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 90% 20%, #ffdbe9 0, transparent 38%),
-        radial-gradient(circle at 10% 15%, #ffe7d9 0, transparent 30%),
-        linear-gradient(145deg, #fff9fd, #fff6f3 48%, #fefbff);
+        radial-gradient(circle at 90% 20%, #ffd7e8 0, transparent 36%),
+        radial-gradient(circle at 15% 20%, #ffe8d7 0, transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(255, 63, 147, 0.08) 0, transparent 38%),
+        linear-gradient(145deg, #fff9fd 0%, #fff5fa 45%, #fff7f0 100%);
       min-height: 100vh;
     }
 
     .shell {
       width: min(1120px, 92vw);
-      margin: 24px auto 40px;
+      margin: 18px auto 40px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px 2px 0;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--pink), var(--peach));
+      box-shadow: 0 12px 24px rgba(255, 63, 147, 0.24);
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 0.98rem;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-text span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .pill-set {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border: 1px solid rgba(255, 63, 147, 0.15);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 0.78rem;
+      font-family: "Space Mono", monospace;
     }
 
     .hero {
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: var(--panel);
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.76));
+      backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
-      padding: 20px;
+      padding: 22px;
       position: relative;
       overflow: hidden;
       animation: liftIn 450ms ease;
@@ -58,8 +116,19 @@
       width: 180px;
       height: 180px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(255, 79, 163, 0.16), rgba(255, 137, 86, 0.14));
+      background: linear-gradient(135deg, rgba(255, 63, 147, 0.18), rgba(255, 137, 86, 0.16));
       pointer-events: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
     }
 
     .headline {
@@ -74,12 +143,21 @@
       margin: 0;
       font-size: clamp(1.3rem, 2.8vw, 2.05rem);
       letter-spacing: -0.03em;
+      font-family: "Poppins", "Inter", sans-serif;
     }
 
     .sub {
       margin: 6px 0 0;
       color: var(--muted);
       font-size: 0.95rem;
+    }
+
+    .lede {
+      margin: 10px 0 0;
+      color: #4b4158;
+      max-width: 62ch;
+      line-height: 1.55;
+      font-size: 0.97rem;
     }
 
     .badge {
@@ -99,6 +177,30 @@
       justify-content: flex-end;
     }
 
+    .callout {
+      margin-top: 16px;
+      border: 1px solid rgba(255, 63, 147, 0.15);
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(255, 63, 147, 0.08), rgba(255, 137, 86, 0.08));
+      padding: 14px 16px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .callout .kicker {
+      font-family: "Space Mono", monospace;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--pink-strong);
+    }
+
+    .callout .body {
+      color: #433651;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
     .toolbar {
       margin-top: 16px;
       display: grid;
@@ -108,9 +210,9 @@
 
     select, button {
       font: inherit;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fff;
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.9);
       padding: 10px 12px;
       color: var(--ink);
     }
@@ -123,6 +225,11 @@
     button:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 18px rgba(31, 23, 38, 0.1);
+    }
+
+    button:focus-visible, select:focus-visible {
+      outline: 2px solid rgba(255, 63, 147, 0.35);
+      outline-offset: 2px;
     }
 
     .btn-pink {
@@ -144,18 +251,27 @@
     }
 
     .panel {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--panel);
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.82));
+      backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
-      padding: 14px;
+      padding: 16px;
       animation: liftIn 520ms ease;
     }
 
     .panel h2 {
       margin: 0 0 10px;
-      font-size: 1rem;
+      font-size: 0.96rem;
       letter-spacing: -0.02em;
+      text-transform: uppercase;
+      font-family: "Poppins", "Inter", sans-serif;
+    }
+
+    .panel-subtitle {
+      margin: -2px 0 12px;
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
     .stats {
@@ -171,9 +287,9 @@
       gap: 12px;
       flex-wrap: wrap;
       align-items: center;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: linear-gradient(135deg, #fff, #fff7fb);
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.92), rgba(255,247,251,0.98));
       padding: 10px 12px;
       margin-bottom: 12px;
     }
@@ -189,9 +305,9 @@
     }
 
     .chart-box {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.88);
       padding: 10px;
       margin-bottom: 12px;
     }
@@ -203,10 +319,10 @@
     }
 
     .chip {
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 14px;
       padding: 10px;
-      background: #fff;
+      background: rgba(255,255,255,0.96);
     }
 
     .chip .k {
@@ -240,9 +356,9 @@
     }
 
     .flight {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fff;
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.97), rgba(255,250,253,0.92));
       padding: 11px;
       display: grid;
       gap: 4px;
@@ -307,16 +423,89 @@
     .bad { color: #a51943; border-color: #ff9db5; background: #fff0f4; }
 
     .console {
-      border: 1px solid var(--line);
-      border-radius: 12px;
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 14px;
       background: #fff;
       padding: 10px;
-      height: 150px;
+      height: 170px;
       overflow: auto;
       font-family: "Space Mono", monospace;
       font-size: 0.74rem;
       line-height: 1.45;
       color: #523f61;
+    }
+
+    .timeline {
+      margin-top: 12px;
+      border-top: 1px dashed rgba(255, 63, 147, 0.18);
+      padding-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .timeline-item {
+      display: grid;
+      gap: 4px;
+      border: 1px solid rgba(255, 63, 147, 0.10);
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: rgba(255,255,255,0.95);
+    }
+
+    .timeline-item .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-family: "Space Mono", monospace;
+    }
+
+    .score-rail {
+      margin-top: 10px;
+      border-radius: 999px;
+      background: rgba(255, 63, 147, 0.08);
+      overflow: hidden;
+      height: 10px;
+    }
+
+    .score-rail > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--pink), var(--peach));
+      width: 0%;
+      border-radius: inherit;
+      transition: width 180ms ease;
+    }
+
+    .microgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .microcard {
+      border: 1px solid rgba(255, 63, 147, 0.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.94);
+      padding: 10px 11px;
+      box-shadow: 0 8px 20px rgba(255, 63, 147, 0.06);
+    }
+
+    .microcard .label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+      font-family: "Space Mono", monospace;
+    }
+
+    .microcard .value {
+      font-weight: 700;
+      line-height: 1.35;
+      font-size: 0.92rem;
     }
 
     .small {
@@ -337,37 +526,67 @@
 </head>
 <body>
   <div class="shell">
-    <section class="hero">
-      <div class="headline">
-        <div>
-          <h1>Airline Disruption Control Room</h1>
-          <p class="sub">A fast visual sandbox for gate conflicts, crew recovery, maintenance pressure, and connection protection.</p>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">✈</div>
+        <div class="brand-text">
+          <strong>Airline Disruption Env</strong>
+          <span>FastAPI + OpenEnv + premium demo UI</span>
         </div>
-          <div class="hero-meta">
-            <span class="badge" id="weatherBadge">weather: loading...</span>
-            <span class="badge" id="statusBadge">loading...</span>
-          </div>
       </div>
-      <div class="toolbar">
-        <select id="taskSelect">
-          <option value="easy">Easy Task</option>
-          <option value="medium">Medium Task</option>
-          <option value="hard">Hard Task</option>
-        </select>
-        <button class="btn-pink" id="resetBtn">Reset Task</button>
-        <select id="flightSelect"></select>
-        <select id="gateSelect"></select>
+      <div class="pill-set">
+        <span class="pill">OpenEnv ready</span>
+        <span class="pill">CountAPI counters</span>
+        <span class="pill">Nominatim map lookups</span>
+        <span class="pill">judge friendly</span>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="headline">
+            <div>
+              <h1>Airline Disruption Control Room</h1>
+              <p class="sub">Gate conflicts, crew recovery, maintenance pressure, and connection protection in one view.</p>
+            </div>
+            <div class="hero-meta">
+              <span class="badge" id="weatherBadge">weather: loading...</span>
+              <span class="badge" id="statusBadge">loading...</span>
+            </div>
+          </div>
+          <p class="lede">The dashboard mirrors a real ops briefing: one airport, one disruption, several trade-offs, and a sequence of actions that should feel practical rather than synthetic.</p>
+          <div class="microgrid" id="heroSummary"></div>
+          <div class="callout">
+            <div class="kicker">Shift note</div>
+            <div class="body" id="shiftNote">Loading task note...</div>
+          </div>
+        </div>
+        <div>
+          <div class="toolbar">
+            <select id="taskSelect">
+              <option value="easy">Easy Task</option>
+              <option value="medium">Medium Task</option>
+              <option value="hard">Hard Task</option>
+            </select>
+            <button class="btn-pink" id="resetBtn">Reset Task</button>
+            <select id="flightSelect"></select>
+            <select id="gateSelect"></select>
+          </div>
+        </div>
       </div>
     </section>
 
     <section class="grid">
       <div class="panel">
         <h2>Flight Board</h2>
+        <div class="panel-subtitle">Live aircraft, crew, gate, and passenger-state snapshot</div>
         <div class="flight-list" id="flightList"></div>
       </div>
 
       <div class="panel">
         <h2>Decision Deck</h2>
+        <div class="panel-subtitle">API-fed weather, charts, score, and recent controller actions</div>
         <div class="weather-strip" id="weatherStrip"></div>
         <div class="stats" id="stats"></div>
         <div class="chart-box">
@@ -376,6 +595,8 @@
         <div class="actions" id="actionButtons"></div>
         <h2 style="margin-top:14px;">Ops Console</h2>
         <div class="console" id="console"></div>
+        <div class="score-rail" aria-hidden="true"><div id="scoreBar"></div></div>
+        <div class="timeline" id="timeline"></div>
         <p class="small">Tip: choose a flight and press actions in sequence. Repeated noisy actions will be penalized.</p>
       </div>
     </section>
@@ -407,11 +628,18 @@
       actionButtons: document.getElementById('actionButtons'),
       statusBadge: document.getElementById('statusBadge'),
       weatherBadge: document.getElementById('weatherBadge'),
-      disruptionChart: document.getElementById('disruptionChart')
+      disruptionChart: document.getElementById('disruptionChart'),
+      shiftNote: document.getElementById('shiftNote'),
+      scoreBar: document.getElementById('scoreBar'),
+      timeline: document.getElementById('timeline')
     };
 
     let latest = null;
     let lastReward = 0;
+    const counterState = {
+      scenarios: 0,
+      actions: 0
+    };
 
     const AIRPORT_COORDS = {
       NVA: { lat: 28.61, lon: 77.21, label: 'Delhi-sector control' },
@@ -441,6 +669,17 @@
       'rain showers': '🌦️',
       thunderstorm: '⛈️',
       'thunderstorm hail': '⛈️'
+    };
+
+    const TASK_NOTES = {
+      easy: 'Smallest viable fix: move the clogged BOS flight, then tell passengers before the queue gets angry.',
+      medium: 'Crew is thin, weather is ugly, and the next connection is the thing that keeps the terminal from melting down.',
+      hard: 'Storm front, maintenance slip, exhausted crew, VIP pressure, and a brittle gate plan. Solve it without making the room noisier.'
+    };
+
+    const COUNTERS = {
+      scenarios: 'airline-disruption-env/scenarios',
+      actions: 'airline-disruption-env/actions'
     };
 
     function say(line) {
@@ -480,6 +719,47 @@
         }
       };
       return `https://quickchart.io/chart?width=640&height=220&backgroundColor=white&c=${encodeURIComponent(JSON.stringify(config))}`;
+    }
+
+    async function incrementCount(kind) {
+      const namespace = COUNTERS[kind];
+      if (!namespace) return null;
+      try {
+        const response = await fetch(`https://api.countapi.xyz/hit/${namespace}`);
+        const payload = await response.json();
+        if (typeof payload?.value === 'number') {
+          counterState[kind] = payload.value;
+        }
+        return payload;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    async function reverseGeocodeAirport(obs) {
+      const coords = AIRPORT_COORDS[obs.airport];
+      if (!coords) {
+        dom.weatherStrip.innerHTML = `<div><strong>${obs.airport}</strong><div class="weather-detail">Task-weather fallback</div></div><span class="tag ok">demo fallback</span>`;
+        return;
+      }
+
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.lat}&lon=${coords.lon}&zoom=10&addressdetails=1`;
+        const response = await fetch(url, { headers: { 'Accept': 'application/json' } });
+        const payload = await response.json();
+        const address = payload.address || {};
+        const city = address.city || address.town || address.state_district || address.state || coords.label;
+        const country = address.country || 'India';
+        dom.weatherStrip.innerHTML = `
+          <div>
+            <strong>${city}, ${country}</strong>
+            <div class="weather-detail">Mapped by Nominatim · ${coords.label}</div>
+          </div>
+          <span class="tag ok">airport context</span>
+        `;
+      } catch (error) {
+        dom.weatherStrip.innerHTML = `<div><strong>${coords.label}</strong><div class="weather-detail">Nominatim fallback using task coordinates.</div></div><span class="tag ok">fallback</span>`;
+      }
     }
 
     async function enrichWeather(obs) {
@@ -522,6 +802,12 @@
       const task = dom.taskSelect.value;
       const pressure = info?.ops_pressure ?? '-';
       const weatherClass = weatherTone(obs.weather);
+      const grade = Number(info?.episode_grade ?? 0);
+      dom.scoreBar.style.width = `${Math.max(0, Math.min(100, grade * 100))}%`;
+      const disrupted = obs.flights.filter(f => f.delay_minutes > 0).length;
+      const connectionRisk = obs.flights.filter(f => f.connection_risk).length;
+      const crewShort = obs.flights.filter(f => !f.crew_available || !f.crew_legal).length;
+      const cancelled = obs.flights.filter(f => f.cancelled).length;
       dom.stats.innerHTML = `
         <div class="chip"><div class="k">Current Task</div><div class="v">${task.toUpperCase()}</div></div>
         <div class="chip"><div class="k">Airport</div><div class="v">${obs.airport}</div></div>
@@ -530,6 +816,34 @@
         <div class="chip"><div class="k">Backup Crew</div><div class="v">${obs.backup_crew_count}</div></div>
         <div class="chip"><div class="k">Ops Pressure</div><div class="v">${pressure}</div></div>
       `;
+
+      if (dom.heroSummary) {
+        dom.heroSummary.innerHTML = `
+          <div class="microcard"><span class="label">Flights affected</span><div class="value">${disrupted}/${obs.flights.length}</div></div>
+          <div class="microcard"><span class="label">Connection risk</span><div class="value">${connectionRisk}</div></div>
+          <div class="microcard"><span class="label">Crew issues</span><div class="value">${crewShort}</div></div>
+          <div class="microcard"><span class="label">Cancellations</span><div class="value">${cancelled}</div></div>
+          <div class="microcard"><span class="label">Scenarios run</span><div class="value">${counterState.scenarios || 0}</div></div>
+          <div class="microcard"><span class="label">Actions taken</span><div class="value">${counterState.actions || 0}</div></div>
+          <div class="microcard"><span class="label">Reward</span><div class="value">${Number(lastReward).toFixed(2)}</div></div>
+          <div class="microcard"><span class="label">Grade</span><div class="value">${Number(info?.episode_grade ?? 0).toFixed(2)}</div></div>
+        `;
+      }
+
+      if (info?.shift_note) {
+        dom.shiftNote.textContent = info.shift_note;
+      }
+
+      const recent = info?.action_log_tail || [];
+      dom.timeline.innerHTML = recent.length
+        ? recent.map(entry => `
+          <div class="timeline-item">
+            <div class="meta"><span>step ${entry.step}</span><span>${entry.valid ? 'valid' : 'invalid'}</span></div>
+            <div><strong>${entry.action}</strong> on ${entry.flight_id || 'n/a'}</div>
+            <div class="small">${entry.reason}</div>
+          </div>
+        `).join('')
+        : '<div class="small">No actions yet. The timeline will appear here once you start making decisions.</div>';
     }
 
     function renderFlights(obs) {
@@ -579,7 +893,9 @@
       renderStats(latest, null);
       renderFlights(latest);
       renderChart(latest);
+      reverseGeocodeAirport(latest);
       enrichWeather(latest);
+      dom.shiftNote.textContent = TASK_NOTES[dom.taskSelect.value] || 'Dispatch prefers smallest viable fix first.';
       dom.statusBadge.textContent = `live / ${latest.airport}`;
     }
 
@@ -596,7 +912,10 @@
       renderStats(latest, null);
       renderFlights(latest);
       renderChart(latest);
+      reverseGeocodeAirport(latest);
       enrichWeather(latest);
+      dom.shiftNote.textContent = TASK_NOTES[task] || 'Dispatch prefers smallest viable fix first.';
+      incrementCount('scenarios');
       say(`Task reset to ${task}.`);
       dom.statusBadge.textContent = `ready / ${latest.airport}`;
     }
@@ -623,7 +942,9 @@
       renderStats(latest, data.info);
       renderFlights(latest);
       renderChart(latest);
+      reverseGeocodeAirport(latest);
       enrichWeather(latest);
+      incrementCount('actions');
 
       const grade = Number(data.info?.episode_grade ?? 0).toFixed(2);
       say(`${actionType} -> reward ${lastReward.toFixed(2)} | grade ${grade} | done=${data.done}`);
