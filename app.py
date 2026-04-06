@@ -40,6 +40,7 @@ def api_info():
 
 
 @app.post("/reset", response_model=Observation)
+@app.post("/reset/", response_model=Observation, include_in_schema=False)
 def reset_environment(payload: ResetRequest | None = None):
     try:
         task_name = payload.task_name if payload else "easy"
@@ -49,6 +50,7 @@ def reset_environment(payload: ResetRequest | None = None):
 
 
 @app.post("/step", response_model=StepResponse)
+@app.post("/step/", response_model=StepResponse, include_in_schema=False)
 def step_environment(action: Action):
     try:
         return env.step(action)
@@ -57,6 +59,7 @@ def step_environment(action: Action):
 
 
 @app.get("/state", response_model=Observation)
+@app.get("/state/", response_model=Observation, include_in_schema=False)
 def get_state():
     return env.state()
 
