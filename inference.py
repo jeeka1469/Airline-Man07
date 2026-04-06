@@ -12,11 +12,12 @@ load_dotenv()
 
 API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 
 client = OpenAI(
-    api_key=HF_TOKEN or "not-set",
+    api_key=OPENAI_API_KEY or HF_TOKEN or "not-set",
     base_url=API_BASE_URL if API_BASE_URL and API_BASE_URL.startswith("http") else None,
 )
 
@@ -51,17 +52,35 @@ def choose_gate(observation: dict[str, Any]) -> str | None:
     return available[0] if available else None
 
 
+def extract_observation(payload: dict[str, Any]) -> dict[str, Any]:
+    observation = payload.get("observation")
+    if isinstance(observation, dict):
+        return observation
+    return payload
+
+
+def extract_reward(step_data: dict[str, Any]) -> float:
+    reward_value = step_data.get("reward", 0.0)
+    if isinstance(reward_value, dict):
+        reward_value = reward_value.get("score", 0.0)
+    try:
+        return float(reward_value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def run_task(task_name: str):
     if not API_BASE_URL:
         raise RuntimeError("API_BASE_URL is not set")
 
     reset_resp = requests.post(f"{API_BASE_URL}/reset", json={"task_name": task_name}, timeout=20)
     reset_resp.raise_for_status()
-    observation = reset_resp.json()
+    observation = extract_observation(reset_resp.json())
 
-    print(f"START {task_name}")
+    print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
 
     final_info = {}
+    rewards: list[float] = []
     for idx, action_type in enumerate(TASK_ACTIONS[task_name], start=1):
         payload = {
             "action_type": action_type,
@@ -71,18 +90,30 @@ def run_task(task_name: str):
             "target_crew": None,
         }
 
-        print(f"STEP {task_name} {idx} {action_type}")
         step_resp = requests.post(f"{API_BASE_URL}/step", json=payload, timeout=20)
         step_resp.raise_for_status()
         step_data = step_resp.json()
-        observation = step_data["observation"]
-        final_info = step_data["info"]
+        observation = extract_observation(step_data)
+        reward = extract_reward(step_data)
+        done = bool(step_data.get("done", False))
+        rewards.append(reward)
+        final_info = step_data.get("info", {})
 
-        if step_data.get("done"):
+        print(
+            f"[STEP] step={idx} action={action_type} "
+            f"reward={reward:.2f} done={str(done).lower()} error=null"
+        )
+
+        if done:
             break
 
-    score = final_info.get("episode_grade", 0.0)
-    print(f"END {task_name} score={score}")
+    score = float(final_info.get("episode_grade", 0.0))
+    success = score >= 0.7
+    rewards_str = ",".join(f"{r:.2f}" for r in rewards)
+    print(
+        f"[END] success={str(success).lower()} "
+        f"steps={len(rewards)} rewards={rewards_str}"
+    )
     return score
 
 
@@ -91,11 +122,6 @@ def main():
     results = {}
     for task_name in TASK_ORDER:
         results[task_name] = run_task(task_name)
-
-    print("START summary")
-    for task_name in TASK_ORDER:
-        print(f"STEP summary {task_name} {results[task_name]}")
-    print("END summary")
 
 
 if __name__ == "__main__":

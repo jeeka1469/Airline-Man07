@@ -1,3 +1,13 @@
+---
+title: Airline Disruption Recovery Environment
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+app_file: app.py
+pinned: false
+---
+
 # Airline Disruption Recovery Environment
 
 Hello!
@@ -383,11 +393,7 @@ Final screenshots are available in `assets/screenshots/`:
 - `demo.png` - Demo mode sequence
 - `demo2.png` - Additional demo mode view
 
-![HF Space Live](assets/screenshots/HF-Space.png)
-![Terminal UI Overview](assets/screenshots/UI.png)
-![Environment State](assets/screenshots/state.png)
-![Demo Mode](assets/screenshots/demo.png)
-![Demo Mode 2](assets/screenshots/demo2.png)
+Note: screenshot image files are stored in the GitHub repo release path to keep this HF Space repository lightweight.
 
 ## Final Note
 
