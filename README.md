@@ -1,12 +1,12 @@
 ---
 title: Airline Disruption Recovery Environment
-emoji: "🚀"
 colorFrom: blue
 colorTo: indigo
 sdk: docker
 app_port: 7860
 app_file: app.py
 pinned: false
+---
 
 # Airline Disruption Recovery Environment
 Hello!
@@ -15,7 +15,6 @@ We're Team Starfleet and we are honestly way too obsessed with airports, aeropla
 
 For us, airports are not just places where you wait for your flight. They are full of constant movement, coordination, pressure, and really cool operations happening every second.
 
----
 We genuinely enjoy sitting near the windows and watching landings, takeoffs, baggage trucks, gate changes, ground staff, crew movement, and all the chaos that somehow still works perfectly.
 
 Last time one of us had a flight at 3 AM and still reached the airport around 6 PM just to watch the planes and the operations for hours.
