@@ -40,9 +40,10 @@ def api_info():
 
 
 @app.post("/reset", response_model=Observation)
-def reset_environment(payload: ResetRequest):
+def reset_environment(payload: ResetRequest | None = None):
     try:
-        return env.reset(task_name=payload.task_name)
+        task_name = payload.task_name if payload else "easy"
+        return env.reset(task_name=task_name)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
