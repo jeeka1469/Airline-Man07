@@ -399,3 +399,5 @@ Note: screenshot image files are stored in the GitHub repo release path to keep 
 We wanted this project to feel like a real airline operations control room where both humans and AI agents can safely test disruption recovery strategies before anything touches a real airport system.
 
 We wrote the scenarios, action flow, reward shaping, grader logic, and the demo interface specifically for this benchmark, so it should read like a real team build rather than a copied template.
+
+<!-- redeploy trigger -->
