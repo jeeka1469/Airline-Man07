@@ -30,6 +30,27 @@ TASK_ACTIONS = {
 }
 
 
+def _base_url() -> str:
+    if not API_BASE_URL:
+        raise RuntimeError("API_BASE_URL is not set")
+    return API_BASE_URL.rstrip("/")
+
+
+def _post_json(path: str, json_payload: dict[str, Any] | None, timeout: int = 20) -> requests.Response:
+    """Try both no-slash and trailing-slash endpoint variants for compatibility."""
+    base = _base_url()
+    urls = [f"{base}{path}", f"{base}{path}/"]
+    last_err: Exception | None = None
+    for url in urls:
+        try:
+            return requests.post(url, json=json_payload, timeout=timeout)
+        except requests.RequestException as exc:
+            last_err = exc
+    if last_err:
+        raise last_err
+    raise RuntimeError("Request failed unexpectedly")
+
+
 def choose_flight_id(observation: dict[str, Any], action_type: str) -> str | None:
     flights = observation.get("flights", [])
     if action_type == "swap_aircraft":
@@ -70,14 +91,21 @@ def extract_reward(step_data: dict[str, Any]) -> float:
 
 
 def run_task(task_name: str):
-    if not API_BASE_URL:
-        raise RuntimeError("API_BASE_URL is not set")
-
-    reset_resp = requests.post(f"{API_BASE_URL}/reset", json={"task_name": task_name}, timeout=20)
-    reset_resp.raise_for_status()
-    observation = extract_observation(reset_resp.json())
-
     print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
+    if not API_BASE_URL:
+        print("[END] success=false steps=0 rewards= error=missing_api_base_url")
+        return 0.0
+
+    try:
+        reset_resp = _post_json("/reset", {"task_name": task_name}, timeout=20)
+        # Fallback for validators/environments that expect empty reset body.
+        if reset_resp.status_code >= 400:
+            reset_resp = _post_json("/reset", None, timeout=20)
+        reset_resp.raise_for_status()
+        observation = extract_observation(reset_resp.json())
+    except Exception as exc:
+        print(f"[END] success=false steps=0 rewards= error=reset_failed:{type(exc).__name__}")
+        return 0.0
 
     final_info = {}
     rewards: list[float] = []
@@ -90,18 +118,24 @@ def run_task(task_name: str):
             "target_crew": None,
         }
 
-        step_resp = requests.post(f"{API_BASE_URL}/step", json=payload, timeout=20)
-        step_resp.raise_for_status()
-        step_data = step_resp.json()
-        observation = extract_observation(step_data)
-        reward = extract_reward(step_data)
-        done = bool(step_data.get("done", False))
-        rewards.append(reward)
-        final_info = step_data.get("info", {})
+        try:
+            step_resp = _post_json("/step", payload, timeout=20)
+            step_resp.raise_for_status()
+            step_data = step_resp.json()
+            observation = extract_observation(step_data)
+            reward = extract_reward(step_data)
+            done = bool(step_data.get("done", False))
+            rewards.append(reward)
+            final_info = step_data.get("info", {})
+            error_text = "null"
+        except Exception as exc:
+            reward = 0.0
+            done = True
+            error_text = type(exc).__name__
 
         print(
             f"[STEP] step={idx} action={action_type} "
-            f"reward={reward:.2f} done={str(done).lower()} error=null"
+            f"reward={reward:.2f} done={str(done).lower()} error={error_text}"
         )
 
         if done:
@@ -121,7 +155,12 @@ def main():
     _ = client
     results = {}
     for task_name in TASK_ORDER:
-        results[task_name] = run_task(task_name)
+        try:
+            results[task_name] = run_task(task_name)
+        except Exception as exc:
+            print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
+            print(f"[END] success=false steps=0 rewards= error=unhandled:{type(exc).__name__}")
+            results[task_name] = 0.0
 
 
 if __name__ == "__main__":
