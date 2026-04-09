@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import Any
 
 import requests
@@ -34,6 +35,11 @@ MAX_SCORE = 1.0 - MIN_SCORE
 SUCCESS_SCORE_THRESHOLD = 0.7
 
 
+def _debug(message: str) -> None:
+    # Keep diagnostics off stdout so required parser lines stay stable.
+    print(f"[DEBUG] {message}", file=sys.stderr, flush=True)
+
+
 def _strict_score(value: float | int | None) -> float:
     try:
         score = float(value)
@@ -62,9 +68,9 @@ def _post_json(path: str, json_payload: dict[str, Any] | None, timeout: int = 20
         except requests.RequestException as exc:
             last_err = exc
     if last_err:
-        print(f"[WARN] request_failed path={path} error={type(last_err).__name__}")
+        _debug(f"request_failed path={path} error={type(last_err).__name__}")
         return None
-    print(f"[WARN] request_failed path={path} error=unknown")
+    _debug(f"request_failed path={path} error=unknown")
     return None
 
 
@@ -115,17 +121,17 @@ def run_task(task_name: str):
         reset_resp = _post_json("/reset", None, timeout=20)
 
     if reset_resp is None:
-        print("[END] success=false steps=0 rewards= error=reset_failed:connection")
+        print(f"[END] success=false steps=0 score={MIN_SCORE:.3f} rewards= error=reset_failed:connection")
         return MIN_SCORE
 
     if reset_resp.status_code >= 400:
-        print(f"[END] success=false steps=0 rewards= error=reset_failed:http_{reset_resp.status_code}")
+        print(f"[END] success=false steps=0 score={MIN_SCORE:.3f} rewards= error=reset_failed:http_{reset_resp.status_code}")
         return MIN_SCORE
 
     try:
         observation = extract_observation(reset_resp.json())
     except Exception as exc:
-        print(f"[END] success=false steps=0 rewards= error=reset_failed:{type(exc).__name__}")
+        print(f"[END] success=false steps=0 score={MIN_SCORE:.3f} rewards= error=reset_failed:{type(exc).__name__}")
         return MIN_SCORE
 
     rewards: list[float] = []
@@ -175,10 +181,11 @@ def run_task(task_name: str):
     score = sum(rewards) / len(rewards) if rewards else MIN_SCORE
     score = _strict_score(score)
     success = score >= SUCCESS_SCORE_THRESHOLD
+    _debug(f"task={task_name} rewards={rewards} mean_score={score:.3f}")
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
         f"[END] success={str(success).lower()} "
-        f"steps={len(rewards)} rewards={rewards_str}"
+        f"steps={len(rewards)} score={score:.3f} rewards={rewards_str}"
     )
     return score
 
@@ -191,7 +198,7 @@ def main():
             results[task_name] = run_task(task_name)
         except Exception as exc:
             print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
-            print(f"[END] success=false steps=0 rewards= error=unhandled:{type(exc).__name__}")
+            print(f"[END] success=false steps=0 score={MIN_SCORE:.3f} rewards= error=unhandled:{type(exc).__name__}")
             results[task_name] = MIN_SCORE
 
 
