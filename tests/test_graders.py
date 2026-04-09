@@ -14,6 +14,27 @@ class TestGraders(unittest.TestCase):
         self.assertGreaterEqual(score, 0.0)
         self.assertLessEqual(score, 1.0)
 
+    def test_scores_are_strictly_inside_open_interval(self):
+        self.assertGreater(grade_easy([]), 0.0)
+        self.assertLess(grade_easy(["reassign_gate", "notify_passengers"]), 1.0)
+        self.assertGreater(grade_medium(["cancel_flight"]), 0.0)
+        self.assertLess(
+            grade_hard(
+                [
+                    "swap_aircraft",
+                    "assign_backup_crew",
+                    "reassign_gate",
+                    "hold_connection",
+                    "notify_passengers",
+                ]
+            ),
+            1.0,
+        )
+
+    def test_scores_use_two_decimals(self):
+        score = grade_hard(["swap_aircraft", "assign_backup_crew", "reassign_gate"])
+        self.assertEqual(score, round(score, 2))
+
     def test_medium_penalizes_cancel(self):
         good = grade_medium(["assign_backup_crew", "hold_connection", "notify_passengers"])
         bad = grade_medium(["assign_backup_crew", "cancel_flight", "notify_passengers"])
