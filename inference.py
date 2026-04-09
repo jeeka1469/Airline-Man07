@@ -29,6 +29,16 @@ TASK_ACTIONS = {
     "medium": ["assign_backup_crew", "hold_connection", "notify_passengers"],
     "hard": ["swap_aircraft", "assign_backup_crew", "reassign_gate", "hold_connection", "notify_passengers"],
 }
+MIN_SCORE = 1e-3
+MAX_SCORE = 1.0 - MIN_SCORE
+
+
+def _strict_score(value: float | int | None) -> float:
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        score = MIN_SCORE
+    return max(MIN_SCORE, min(MAX_SCORE, score))
 
 
 def _base_url() -> str:
