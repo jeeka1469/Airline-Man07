@@ -5,14 +5,11 @@ colorTo: indigo
 sdk: docker
 app_port: 7860
 app_file: app.py
-pinned: false
+We simulate an airport environment that starts in a disrupted state.
 ---
 
-# Airline Disruption Recovery Environment
-
-Hello!
-
-We're Team Starfleet and we are honestly way too obsessed with airports, aeroplanes, and everything that happens behind the scenes.
+ 
+All of that together becomes the current environment state.
 
 For us, airports are not just places where you wait for your flight. They are full of constant movement, coordination, pressure, and really cool operations happening every second.
 
@@ -46,49 +43,25 @@ The backend stores things like:
 - weather
 - flights
 - delay minutes
-- gates
-- crew availability
-- maintenance issues
-- passenger count
-- VIP passengers
-- connection risk
-- available backup crew
-- completed actions
+Hello!
 
-When someone presses a button in the UI, or when an AI agent sends an action, the environment updates.
-For example, if the action is:
-`assign_backup_crew`
+We're Team Starfleet and we are honestly way too obsessed with airports, aeroplanes, and everything that happens behind the scenes.
 
-The backend checks:
-- does the flight exist?
-- is backup crew available?
-- is the action valid?
-- is it actually useful in this situation?
+For us, airports are not just places where you wait for your flight. They are full of constant movement, coordination, pressure, and really cool operations happening every second.
 
-If yes, the environment updates the flight.
+We genuinely enjoy sitting near the windows and watching landings, takeoffs, baggage trucks, gate changes, ground staff, crew movement, and all the chaos that somehow still works perfectly.
 
-Before:
-`crew_available = false`
-`backup_crew_count = 2`
+Last time one of us had a flight at 3 AM and still reached the airport around 6 PM just to watch the planes and the operations for hours.
 
-After:
-`crew_available = true`
-`backup_crew_count = 1`
+That is honestly what inspired this project.
 
-Then the reward system gives a score.
+We thought, if we were going to spend days building something for a hackathon, why not build something we actually care about.
 
-Good actions get positive rewards.
-- assign backup crew = +0.15
-- notify passengers = +0.10
-- hold connection = +0.15
-- swap aircraft = +0.20
+So we built an Airline Disruption Recovery Environment.
 
-Bad actions get penalties.
-- invalid action = -0.10
-- unnecessary cancellation = -0.20
-- repeated useless action = -0.05
-- illegal crew assignment = -0.30
 
+The idea is simple.
+We simulate an airport environment that starts in a disrupted state.
 So the environment is not just checking if the task was solved. It also checks how well it was solved. The frontend is basically a live visual version of the backend state.
 
 You can see:
