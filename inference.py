@@ -14,6 +14,7 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 HF_TOKEN = os.getenv("HF_TOKEN")
+DEFAULT_API_BASE_URL = "http://127.0.0.1:7860"
 
 
 client = OpenAI(
@@ -31,13 +32,10 @@ TASK_ACTIONS = {
 
 
 def _base_url() -> str:
-    if not API_BASE_URL:
-        raise RuntimeError("API_BASE_URL is not set")
-    return API_BASE_URL.rstrip("/")
+    return (API_BASE_URL or DEFAULT_API_BASE_URL).rstrip("/")
 
 
-def _post_json(path: str, json_payload: dict[str, Any] | None, timeout: int = 20) -> requests.Response:
-    """Try both no-slash and trailing-slash endpoint variants for compatibility."""
+def _post_json(path: str, json_payload: dict[str, Any] | None, timeout: int = 20) -> requests.Response | None:
     base = _base_url()
     urls = [f"{base}{path}", f"{base}{path}/"]
     last_err: Exception | None = None
@@ -47,8 +45,10 @@ def _post_json(path: str, json_payload: dict[str, Any] | None, timeout: int = 20
         except requests.RequestException as exc:
             last_err = exc
     if last_err:
-        raise last_err
-    raise RuntimeError("Request failed unexpectedly")
+        print(f"[WARN] request_failed path={path} error={type(last_err).__name__}")
+        return None
+    print(f"[WARN] request_failed path={path} error=unknown")
+    return None
 
 
 def choose_flight_id(observation: dict[str, Any], action_type: str) -> str | None:
@@ -92,16 +92,20 @@ def extract_reward(step_data: dict[str, Any]) -> float:
 
 def run_task(task_name: str):
     print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
-    if not API_BASE_URL:
-        print("[END] success=false steps=0 rewards= error=missing_api_base_url")
+
+    reset_resp = _post_json("/reset", {"task_name": task_name}, timeout=20)
+    if reset_resp is None or reset_resp.status_code >= 400:
+        reset_resp = _post_json("/reset", None, timeout=20)
+
+    if reset_resp is None:
+        print("[END] success=false steps=0 rewards= error=reset_failed:connection")
+        return 0.0
+
+    if reset_resp.status_code >= 400:
+        print(f"[END] success=false steps=0 rewards= error=reset_failed:http_{reset_resp.status_code}")
         return 0.0
 
     try:
-        reset_resp = _post_json("/reset", {"task_name": task_name}, timeout=20)
-        # Fallback for validators/environments that expect empty reset body.
-        if reset_resp.status_code >= 400:
-            reset_resp = _post_json("/reset", None, timeout=20)
-        reset_resp.raise_for_status()
         observation = extract_observation(reset_resp.json())
     except Exception as exc:
         print(f"[END] success=false steps=0 rewards= error=reset_failed:{type(exc).__name__}")
@@ -118,20 +122,32 @@ def run_task(task_name: str):
             "target_crew": None,
         }
 
-        try:
-            step_resp = _post_json("/step", payload, timeout=20)
-            step_resp.raise_for_status()
-            step_data = step_resp.json()
-            observation = extract_observation(step_data)
-            reward = extract_reward(step_data)
-            done = bool(step_data.get("done", False))
-            rewards.append(reward)
-            final_info = step_data.get("info", {})
-            error_text = "null"
-        except Exception as exc:
+        step_resp = _post_json("/step", payload, timeout=20)
+        if step_resp is None:
             reward = 0.0
             done = True
-            error_text = type(exc).__name__
+            error_text = "connection"
+        elif step_resp.status_code >= 400:
+            reward = 0.0
+            done = True
+            error_text = f"http_{step_resp.status_code}"
+        else:
+            try:
+                step_data = step_resp.json()
+                observation = extract_observation(step_data)
+                reward = extract_reward(step_data)
+                done = bool(step_data.get("done", False))
+                rewards.append(reward)
+                final_info = step_data.get("info", {})
+                error_text = "null"
+            except Exception as exc:
+                reward = 0.0
+                done = True
+                error_text = type(exc).__name__
+
+        if error_text != "null":
+            reward = 0.0
+            done = True
 
         print(
             f"[STEP] step={idx} action={action_type} "

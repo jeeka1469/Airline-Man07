@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+import uvicorn
 
 from env.environment import AirlineDisruptionEnv
 from env.models import Action, Observation, StepResponse
@@ -94,3 +95,11 @@ def mcp_ping(payload: dict):
         "id": payload.get("id", 1),
         "result": {"status": "ok"},
     }
+
+
+def main() -> None:
+	uvicorn.run("app:app", host="0.0.0.0", port=7860)
+
+
+if __name__ == "__main__":
+	main()
