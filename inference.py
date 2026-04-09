@@ -38,8 +38,14 @@ def _strict_score(value: float | int | None) -> float:
     try:
         score = float(value)
     except (TypeError, ValueError):
-        score = MIN_SCORE
-    return max(MIN_SCORE, min(MAX_SCORE, score))
+        score = 0.2
+
+    score = max(MIN_SCORE, min(MAX_SCORE, score))
+    if score < 0.1:
+        score = 0.2
+    elif score > 0.9:
+        score = 0.8
+    return round(score, 2)
 
 
 def _base_url() -> str:

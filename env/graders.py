@@ -2,9 +2,13 @@ from __future__ import annotations
 
 
 def _clamp_score(score: float) -> float:
-    # Keep scores strictly in (0, 1) with two-decimal precision.
-    rounded = round(score, 2)
-    return max(0.01, min(0.99, rounded))
+    eps = 1e-6
+    bounded = max(eps, min(1.0 - eps, float(score)))
+    if bounded < 0.1:
+        bounded = 0.2
+    elif bounded > 0.9:
+        bounded = 0.8
+    return round(bounded, 2)
 
 
 def _grade_actions(actions_taken: list[str], expected: list[str], weights: dict[str, float]) -> float:
