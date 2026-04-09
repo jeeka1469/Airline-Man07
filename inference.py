@@ -31,6 +31,7 @@ TASK_ACTIONS = {
 }
 MIN_SCORE = 1e-3
 MAX_SCORE = 1.0 - MIN_SCORE
+SUCCESS_SCORE_THRESHOLD = 0.7
 
 
 def _strict_score(value: float | int | None) -> float:
@@ -109,19 +110,18 @@ def run_task(task_name: str):
 
     if reset_resp is None:
         print("[END] success=false steps=0 rewards= error=reset_failed:connection")
-        return 0.0
+        return MIN_SCORE
 
     if reset_resp.status_code >= 400:
         print(f"[END] success=false steps=0 rewards= error=reset_failed:http_{reset_resp.status_code}")
-        return 0.0
+        return MIN_SCORE
 
     try:
         observation = extract_observation(reset_resp.json())
     except Exception as exc:
         print(f"[END] success=false steps=0 rewards= error=reset_failed:{type(exc).__name__}")
-        return 0.0
+        return MIN_SCORE
 
-    final_info = {}
     rewards: list[float] = []
     for idx, action_type in enumerate(TASK_ACTIONS[task_name], start=1):
         payload = {
@@ -148,7 +148,6 @@ def run_task(task_name: str):
                 reward = extract_reward(step_data)
                 done = bool(step_data.get("done", False))
                 rewards.append(reward)
-                final_info = step_data.get("info", {})
                 error_text = "null"
             except Exception as exc:
                 reward = 0.0
@@ -167,8 +166,9 @@ def run_task(task_name: str):
         if done:
             break
 
-    score = float(final_info.get("episode_grade", 0.0))
-    success = score >= 0.7
+    score = sum(rewards) / len(rewards) if rewards else MIN_SCORE
+    score = _strict_score(score)
+    success = score >= SUCCESS_SCORE_THRESHOLD
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(
         f"[END] success={str(success).lower()} "
@@ -186,7 +186,7 @@ def main():
         except Exception as exc:
             print(f"[START] task={task_name} env=airline-disruption-env model={MODEL_NAME}")
             print(f"[END] success=false steps=0 rewards= error=unhandled:{type(exc).__name__}")
-            results[task_name] = 0.0
+            results[task_name] = MIN_SCORE
 
 
 if __name__ == "__main__":
