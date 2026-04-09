@@ -1,19 +1,63 @@
 name: airline-disruption-env
-version: 1.0.0
-description: Airline disruption recovery environment for evaluating AI agents.
+version: "1.0.0"
+description: >
+  Airline disruption recovery environment for evaluating AI agents.
+author: "Team Starfleet"
+tags:
+  - airline-operations
+  - disruption-recovery
+  - openenv
 entrypoint: app.py
+
 models:
   action: env.models.Action
   observation: env.models.Observation
   reward: env.models.Reward
-endpoints:
-  reset: /reset
-  step: /step
-  state: /state
+
 tasks:
-  - name: easy
+  - id: easy
+    name: Easy Task
+    difficulty: easy
+    max_steps: 6
+    description: >
+      Resolve a small gate conflict and stabilize passenger communication.
     grader: env.graders.grade_easy
-  - name: medium
+  - id: medium
+    name: Medium Task
+    difficulty: medium
+    max_steps: 7
+    description: >
+      Handle weather disruption, missing crew, and connection risk.
     grader: env.graders.grade_medium
-  - name: hard
+  - id: hard
+    name: Hard Task
+    difficulty: hard
+    max_steps: 9
+    description: >
+      Recover operations under storm, maintenance, crew, and VIP pressure.
     grader: env.graders.grade_hard
+
+action_space:
+  type: pydantic
+  schema: env.models.Action
+
+observation_space:
+  type: pydantic
+  schema: env.models.Observation
+
+endpoints:
+  reset:
+    method: POST
+    path: /reset
+    response_model: env.models.Observation
+
+  step:
+    method: POST
+    path: /step
+    request_model: env.models.Action
+    response_model: env.models.StepResponse
+
+  state:
+    method: GET
+    path: /state
+    response_model: env.models.Observation
